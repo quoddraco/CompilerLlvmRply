@@ -49,6 +49,12 @@ class Parser:
             print("++++3 ", p)
             return Write(self.builder, self.module, self.printf, p[2])
 
+
+        @self.pg.production('stmt_assign : Int ID ASSIGN expression')
+        def assign(p):
+            print("++++6 ", p)
+            return ASSIGN(self.builder, self.module, p[1].value, p[3].value)
+
         @self.pg.production('expression : expression Sum expression')
         @self.pg.production('expression : expression Sub expression')
         @self.pg.production('expression : expression Multi expression')
@@ -79,14 +85,6 @@ class Parser:
         def id(p):
             print("++++7 ", p)
             return Id(self.builder, self.module,p[0].value)
-
-        @self.pg.production('stmt_assign : Int ID ASSIGN expression')
-        def assign(p):
-            print("++++6 ", p)
-            self.variables[p[1].value] = p[3].value
-            return ASSIGN(self.builder, self.module, p[1].value, p[3].value)
-
-
 
         @self.pg.error
         def error_handle(token):

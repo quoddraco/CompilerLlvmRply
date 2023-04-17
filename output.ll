@@ -5,17 +5,15 @@ target datalayout = ""
 define void @"main"()
 {
 entry:
-  %"a" = alloca i8
-  store i8 3, i8* %"a"
-  %".3" = load i8, i8* %"a"
-  %"e" = alloca i8
-  store i8 6, i8* %"e"
-  %".5" = load i8, i8* %"e"
-  %".6" = load i8, i8* %"a"
-  %".7" = load i8, i8* %"e"
-  %".8" = add i8 %".6", %".7"
-  %".9" = bitcast [5 x i8]* @"fstr" to i8*
-  %".10" = call i32 (i8*, ...) @"printf"(i8* %".9", i8 %".8")
+  %"a" = alloca i32
+  store i32 323, i32* %"a"
+  %"e" = alloca i32
+  store i32 503, i32* %"e"
+  %".4" = load i32, i32* %"e"
+  %".5" = load i32, i32* %"a"
+  %".6" = sdiv i32 %".4", %".5"
+  %".7" = bitcast [5 x i8]* @"fstr" to i8*
+  %".8" = call i32 (i8*, ...) @"printf"(i8* %".7", i32 %".6")
   ret void
 }
 

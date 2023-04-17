@@ -10,9 +10,10 @@ text_input = """
 
 begin
 
-int a = 3;
-int e = 6;
-write( a + e );
+int a = 323;
+int e = 503;
+write(e div a);
+
 
 end                                                                           
                              

@@ -5,7 +5,6 @@ class Lexer():
         self.lexer = LexerGenerator()
 
     def _add_tokens(self):
-        self.lexer.add('DEF', r'def')
         self.lexer.add('Write', r'write')
         self.lexer.add('Begin', r'begin')
         self.lexer.add('End', r'end')
@@ -47,7 +46,7 @@ class Lexer():
         # Числа
         self.lexer.add('Numb', r'\d+')
         self.lexer.add('Int', r'int')
-        self.lexer.add('Float', r'float')
+        self.lexer.add('Float', r'flo')
         self.lexer.add('String', r'str')
         self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z0-9_]*')
 
