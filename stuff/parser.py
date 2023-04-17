@@ -76,6 +76,11 @@ class Parser:
             elif operator.gettokentype() == 'Mod':
                 return Mod(self.builder, self.module,left, right)
 
+        @self.pg.production('expression : LParen expression RParen')
+        def paren_exp(p):
+            print("++++++++8",p)
+            return p[1]
+
         @self.pg.production('expression : Numb')
         def number(p):
             print("++++5 ", p)
