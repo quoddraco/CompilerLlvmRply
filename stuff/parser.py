@@ -16,24 +16,6 @@ class Parser:
         self.printf = printf
 
     def parse(self):
-
-        # @self.pg.production('program : Begin statement_list  End')
-        # def program_expression(p):
-        #     print("++++1 ",p)
-        #     print("1====", p[1],"====")
-        #     return p[1]
-        #
-        # @self.pg.production('statement_list : statements SemiColon')
-        # @self.pg.production('statement_list : statements SemiColon statement_list')
-        # def program_mult(p):
-        #     print("+++++2",p)
-        #     if len(p) == 2:
-        #         print("+++++2.1", p[0])
-        #         return p[0]
-        #     else:
-        #         print("+++++2.2", p[0],"===",p[2])
-        #         return list((p[0],p[2]))
-
         @self.pg.production('program : Begin body  End')
         def program_expression(p):
             print("1====", p[1], "====")
