@@ -1,3 +1,5 @@
-write(10 + a);
-a = 5;
-write(a);
+begin
+int a = 2;
+int e = 3;
+write(2*(a+e));
+end

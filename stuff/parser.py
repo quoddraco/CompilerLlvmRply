@@ -1,5 +1,5 @@
 from rply import ParserGenerator
-from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id
+from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, IfStatement
 
 
 class Parser:
@@ -7,9 +7,11 @@ class Parser:
         self.variables = {}
         self.pg = ParserGenerator(
             # Список всех токенов, принятых парсером.
-            ['Numb', 'Write', 'LParen', 'RParen',
-             'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End'],
-            precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]
+            ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
+             'LogicalNegation',
+             'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
+             'If'],
+            precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod','LogicEquality'])]
         )
         self.module = module
         self.builder = builder
@@ -41,8 +43,14 @@ class Parser:
 
         @self.pg.production('stmt : stmt_write SemiColon')
         @self.pg.production('stmt : stmt_assign SemiColon')
+        @self.pg.production('stmt : stmt_if SemiColon')
         def stmt(p):
             return p[0]
+
+        @self.pg.production('stmt_if : If LParen expression RParen LBracket body RBracket')
+        def ifs(p):
+            print("iffff", p)
+            return IfStatement(self.builder, self.module,p[2],p[5],0)
 
         @self.pg.production('stmt_write : Write LParen expression RParen')
         def prints(p):
@@ -51,6 +59,7 @@ class Parser:
 
 
         @self.pg.production('stmt_assign : Int ID ASSIGN expression')
+        @self.pg.production('stmt_assign : Float ID ASSIGN expression')
         def assign(p):
             print("++++6 ", p)
             return ASSIGN(self.builder, self.module, p[1].value, p[3].value)
@@ -60,6 +69,10 @@ class Parser:
         @self.pg.production('expression : expression Multi expression')
         @self.pg.production('expression : expression Div expression')
         @self.pg.production('expression : expression Mod expression')
+        @self.pg.production('expression : expression LogicEquality expression')
+        @self.pg.production('expression : expression LessThan expression')
+        @self.pg.production('expression : expression GreaterThan expression')
+        @self.pg.production('expression : expression LogicalNegation expression')
         def expression(p):
             print("++++4 ", p)
             left = p[0]
@@ -75,6 +88,16 @@ class Parser:
                 return Div(self.builder, self.module,left, right)
             elif operator.gettokentype() == 'Mod':
                 return Mod(self.builder, self.module,left, right)
+            elif operator.gettokentype() == 'LogicEquality':
+                return Equality(self.builder, self.module, left, right)
+            elif operator.gettokentype() == 'LessThan':
+                return LessThan(self.builder, self.module, left, right)
+            elif operator.gettokentype() == 'GreaterThan':
+                return GreaterThan(self.builder, self.module, left, right)
+            elif operator.gettokentype() == 'LogicalNegation':
+                return LogicalNegation(self.builder, self.module, left, right)
+
+
 
         @self.pg.production('expression : LParen expression RParen')
         def paren_exp(p):
@@ -82,6 +105,7 @@ class Parser:
             return p[1]
 
         @self.pg.production('expression : Numb')
+        @self.pg.production('expression : NumbFlo')
         def number(p):
             print("++++5 ", p)
             return Numb(self.builder, self.module,p[0].value)

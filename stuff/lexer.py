@@ -28,12 +28,13 @@ class Lexer():
         self.lexer.add('Multi', r'\*')
         self.lexer.add('Div', r'div')
         self.lexer.add('Mod', r'mod')
+        self.lexer.add('LogicEquality', r'==')
         self.lexer.add('ASSIGN', r'=')
 
-        self.lexer.add('LogicEquality', r'\==')
+
         self.lexer.add('LessThan', r'\<')
         self.lexer.add('GreaterThan', r'\>')
-        self.lexer.add('LogicalNegation', r'\!')
+        self.lexer.add('LogicalNegation', r'\!=')
         self.lexer.add('LogicalAnd', r'\and')
         self.lexer.add('LogicalOr ', r'\|\|')
 
@@ -44,9 +45,10 @@ class Lexer():
         self.lexer.add('Def', r'def')
 
         # Числа
+        self.lexer.add('NumbFlo', r'\d+\.\d+')
+        self.lexer.add('Float', r'flo')
         self.lexer.add('Numb', r'\d+')
         self.lexer.add('Int', r'int')
-        self.lexer.add('Float', r'flo')
         self.lexer.add('String', r'str')
         self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z0-9_]*')
 

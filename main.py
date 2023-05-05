@@ -9,15 +9,13 @@ from codegen import CodeGen
 text_input = """
 
 begin
-
-int a = 2;
-int e = 3;
-write(2*(a+e));
-
+int b = 22;
+int f = 33;
+flo e = 22.9;
+if (22 > 3){ int a = 6; };
+write(2);
 end                                                                           
                              
-                             
-
 """
 
 lexer = Lexer().get_lexer()
