@@ -12,7 +12,12 @@ begin
 int b = 22;
 int f = 33;
 flo e = 22.9;
-if (22 > 3){ int a = 6; };
+if (b > 33){ 
+   int a = 6;
+   };
+if (b > 11){
+   int a = 5;
+   };
 write(2);
 end                                                                           
                              

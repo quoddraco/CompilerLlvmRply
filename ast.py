@@ -84,8 +84,8 @@ class LogicalNegation(BinaryOp):
         i = self.builder.icmp_signed('!=', self.left.eval(), self.right.eval())
         return i
 
-class IfStatement():
-    def __init__(self,builder, module,condition, if_body, else_body=None):
+class IfStatement:
+    def __init__(self, builder, module, condition, if_body, else_body=None):
         self.builder = builder
         self.module = module
         self.condition = condition
@@ -93,37 +93,35 @@ class IfStatement():
         self.else_body = else_body
 
     def eval(self):
-        # Оценка условия
-        condition_value = self.condition.eval()
+        # вычисляем значение условного выражения
+        condition_val = self.condition.eval()
 
-        # Создание блоков для ветвей if и else
-        if_block = self.builder.append_basic_block('if')
-        else_block = self.builder.append_basic_block('else')
-        merge_block = self.builder.append_basic_block('merge')
+        # создаем блоки базовых блоков для тела if и else
+        if_bb = self.builder.append_basic_block("if")
+        else_bb = self.builder.append_basic_block("else")
+        merge_bb = self.builder.append_basic_block("merge")
 
-        # Переход к соответствующему блоку
-        self.builder.cbranch(condition_value, if_block, else_block)
+        # создаем инструкцию условного перехода в блок if, если значение условия истинно,
+        # и в блок else в противном случае
+        self.builder.cbranch(condition_val, if_bb, else_bb)
 
-        # Генерация кода для блока if
-        self.builder.position_at_end(if_block)
-        if_value = self.if_body.eval()
-        self.builder.branch(merge_block)
+        # выполняем тело if
+        self.builder.position_at_start(if_bb)
+        for statement in self.if_body:
+            statement.eval()
+        self.builder.branch(merge_bb)
 
-        # Генерация кода для блока else
-        self.builder.position_at_end(else_block)
+        # выполняем тело else, если оно есть
+        self.builder.position_at_start(else_bb)
         if self.else_body is not None:
-            else_value = self.else_body.eval()
-        self.builder.branch(merge_block)
+            for statement in self.else_body:
+                statement.eval()
+        self.builder.branch(merge_bb)
 
-        # Генерация кода для блока merge
-        self.builder.position_at_end(merge_block)
-        if self.else_body is not None:
-            phi = self.builder.phi(if_value.type, 'iftmp')
-            phi.add_incoming(if_value, if_block)
-            phi.add_incoming(else_value, else_block)
-            return phi
-        else:
-            return if_value
+        # переходим к блоку слияния
+        self.builder.position_at_start(merge_bb)
+
+
 
 
 class ASSIGN():
