@@ -121,7 +121,7 @@ class IfStatement:
         # переходим к блоку слияния
         self.builder.position_at_start(merge_bb)
 
-
+        # self.builder.position_at_start(self.module.get_function("main").entry_basic_block)
 
 
 class ASSIGN():
@@ -132,14 +132,26 @@ class ASSIGN():
         self.value = value
 
     def eval(self):
-        if "." not in self.value:
-           i = self.builder.alloca(ir.IntType(32), name=self.id)
-           variables[self.id] = i
-           self.builder.store(ir.Constant(ir.IntType(32), self.value), i)
-        elif "." in self.value:
-            i = self.builder.alloca(ir.DoubleType(), name=self.id)
+        print("ASS",type(self.value))
+
+        if isinstance(self.value, str):
+
+           if "." not in self.value:
+              i = self.builder.alloca(ir.IntType(32), name=self.id)
+              variables[self.id] = i
+              self.builder.store(ir.Constant(ir.IntType(32), self.value), i)
+
+           elif "." in self.value:
+               i = self.builder.alloca(ir.DoubleType(), name=self.id)
+               variables[self.id] = i
+               self.builder.store(ir.Constant(ir.DoubleType(), self.value), i)
+        else:
+            i = self.builder.alloca(ir.IntType(32), name=self.id)
             variables[self.id] = i
-            self.builder.store(ir.Constant(ir.DoubleType(), self.value), i)
+            value = self.value.eval()
+            self.builder.store(value, i)
+
+
 class Write():
     def __init__(self, builder, module, printf, value):
         self.value = value
@@ -150,7 +162,7 @@ class Write():
     def eval(self):
         print(self.value)
         value = self.value.eval()
-        print(value.type)
+        print(value)
 
         # Объявление списка аргументов
         voidptr_ty = ir.IntType(8).as_pointer()

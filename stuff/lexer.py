@@ -42,7 +42,7 @@ class Lexer():
         self.lexer.add('Break', r'break')
         self.lexer.add('Continue', r'continue')
         self.lexer.add('If', r'if')
-        self.lexer.add('Def', r'def')
+        self.lexer.add('Func', r'func')
 
         # Числа
         self.lexer.add('NumbFlo', r'\d+\.\d+')
