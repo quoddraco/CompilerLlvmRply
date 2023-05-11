@@ -1,7 +1,7 @@
 from rply import ParserGenerator
 
 import ast
-from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, IfStatement
+from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, IfStatement, PereASSIGN
 
 
 class Parser:
@@ -18,6 +18,7 @@ class Parser:
         self.module = module
         self.builder = builder
         self.printf = printf
+        self.idfstr=0
 
     def parse(self):
         @self.pg.production('program : Begin body  End')
@@ -46,6 +47,7 @@ class Parser:
         @self.pg.production('stmt : stmt_write SemiColon')
         @self.pg.production('stmt : stmt_assign SemiColon')
         @self.pg.production('stmt : stmt_if SemiColon')
+        @self.pg.production('stmt : stmt_pereassign SemiColon')
         # @self.pg.production('stmt : stmt_func SemiColon')
         def stmt(p):
             return p[0]
@@ -61,7 +63,8 @@ class Parser:
         @self.pg.production('stmt_write : Write LParen expression RParen')
         def prints(p):
             print("++++3 ", p)
-            return Write(self.builder, self.module, self.printf, p[2])
+            self.idfstr +=1
+            return Write(self.builder, self.module, self.printf, p[2],self.idfstr)
 
 
         @self.pg.production('stmt_assign : Int ID ASSIGN expression')
@@ -74,6 +77,13 @@ class Parser:
                 return ASSIGN(self.builder, self.module, p[1].value, p[3].value)
             else:
                 return ASSIGN(self.builder, self.module, p[1].value, p[3])
+
+        @self.pg.production('stmt_pereassign : ID ASSIGN expression')
+        def pereassign(p):
+           print("++++6.2 ", p)
+           return PereASSIGN(self.builder, self.module, p[0].value, p[2].value)
+
+
 
         @self.pg.production('expression : expression Sum expression')
         @self.pg.production('expression : expression Sub expression')

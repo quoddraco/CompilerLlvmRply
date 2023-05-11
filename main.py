@@ -9,10 +9,13 @@ from codegen import CodeGen
 text_input = """
 
 begin
-int b = 22;
-int a = 10;
-int c = b + a;
-write(c);
+int e = 6;
+int i = 4;
+if (i == 3){
+  e = 7;
+};
+write(e);
+write(i);
 end                                                                           
                              
 """

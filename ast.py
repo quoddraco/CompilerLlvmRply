@@ -123,6 +123,15 @@ class IfStatement:
 
         # self.builder.position_at_start(self.module.get_function("main").entry_basic_block)
 
+class PereASSIGN():
+    def __init__(self, builder, module, id, value):
+        self.builder = builder
+        self.module = module
+        self.id = id
+        self.value = value
+
+    def eval(self):
+      self.builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
 
 class ASSIGN():
     def __init__(self, builder, module, id, value):
@@ -153,11 +162,12 @@ class ASSIGN():
 
 
 class Write():
-    def __init__(self, builder, module, printf, value):
+    def __init__(self, builder, module, printf, value, idfstr):
         self.value = value
         self.builder = builder
         self.module = module
         self.printf = printf
+        self.idfstr = idfstr
 
     def eval(self):
         print(self.value)
@@ -169,7 +179,9 @@ class Write():
         fmt = "%i \n\0"
         c_fmt = ir.Constant(ir.ArrayType(ir.IntType(8), len(fmt)),
                             bytearray(fmt.encode("utf8")))
-        global_fmt = ir.GlobalVariable(self.module, c_fmt.type, name="fstr")
+        namefstr = f"fstr{self.idfstr}"
+        print(namefstr)
+        global_fmt = ir.GlobalVariable(self.module, c_fmt.type, name=namefstr)
         global_fmt.linkage = 'internal'
         global_fmt.global_constant = True
         global_fmt.initializer = c_fmt
