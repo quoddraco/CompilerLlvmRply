@@ -10,12 +10,11 @@ text_input = """
 
 begin
 int e = 6;
-int i = 4;
-if (i == 3){
-  e = 7;
+while(e < 1000){
+  e = e + 2 ;
+  write(e);  
 };
-write(e);
-write(i);
+
 end                                                                           
                              
 """

@@ -1,7 +1,8 @@
 from rply import ParserGenerator
 
 import ast
-from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, IfStatement, PereASSIGN
+from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, \
+    IfStatement, PereASSIGN, WhileStatement
 
 
 class Parser:
@@ -10,7 +11,7 @@ class Parser:
         self.pg = ParserGenerator(
             # Список всех токенов, принятых парсером.
             ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
-             'LogicalNegation', 'Func','String',
+             'LogicalNegation', 'Func','String', 'While',
              'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
              'If'],
             precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]
@@ -47,18 +48,19 @@ class Parser:
         @self.pg.production('stmt : stmt_write SemiColon')
         @self.pg.production('stmt : stmt_assign SemiColon')
         @self.pg.production('stmt : stmt_if SemiColon')
+        @self.pg.production('stmt : stmt_while SemiColon')
         @self.pg.production('stmt : stmt_pereassign SemiColon')
-        # @self.pg.production('stmt : stmt_func SemiColon')
         def stmt(p):
             return p[0]
 
-        # @self.pg.production('stmt_func : Func ID LParen RParen LBracket stmts RBracket')
-        # def func(p):
-        #     return FuncStatement(self.builder, self.module, p[2], p[5], [])
 
         @self.pg.production('stmt_if : If LParen expression RParen LBracket stmts RBracket')
         def ifs(p):
             return IfStatement(self.builder, self.module, p[2], p[5], [])
+
+        @self.pg.production('stmt_while : While LParen expression RParen LBracket stmts RBracket')
+        def whiles(p):
+            return WhileStatement(self.builder, self.module, p[2], p[5])
 
         @self.pg.production('stmt_write : Write LParen expression RParen')
         def prints(p):
@@ -81,7 +83,11 @@ class Parser:
         @self.pg.production('stmt_pereassign : ID ASSIGN expression')
         def pereassign(p):
            print("++++6.2 ", p)
-           return PereASSIGN(self.builder, self.module, p[0].value, p[2].value)
+
+           if isinstance(p[2], ast.Numb):
+               return PereASSIGN(self.builder, self.module, p[0].value, p[2].value)
+           else:
+               return PereASSIGN(self.builder, self.module, p[0].value, p[2])
 
 
 

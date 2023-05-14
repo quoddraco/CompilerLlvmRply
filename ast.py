@@ -84,6 +84,39 @@ class LogicalNegation(BinaryOp):
         i = self.builder.icmp_signed('!=', self.left.eval(), self.right.eval())
         return i
 
+class WhileStatement:
+    def __init__(self, builder, module, condition, body):
+        self.builder = builder
+        self.module = module
+        self.condition = condition
+        self.body = body
+
+    def eval(self):
+
+        w_cond_head = self.builder.append_basic_block("w_cond_head")
+        w_body_block = self.builder.append_basic_block("w_body")
+        w_after_block = self.builder.append_basic_block("w_after")
+
+        self.builder.branch(w_cond_head)
+        self.builder.position_at_start(w_cond_head)
+
+        condition_val = self.condition.eval()
+        self.builder.cbranch(condition_val, w_body_block, w_after_block)
+
+        self.builder.position_at_start(w_body_block)
+
+        for statement in self.body:
+            statement.eval()
+        condition_val = self.condition.eval()
+        self.builder.cbranch(condition_val, w_body_block, w_after_block)
+        # self.builder.branch(w_after_block)
+
+        self.builder.position_at_start(w_after_block)
+
+
+
+
+
 class IfStatement:
     def __init__(self, builder, module, condition, if_body, else_body=None):
         self.builder = builder
@@ -131,7 +164,16 @@ class PereASSIGN():
         self.value = value
 
     def eval(self):
-      self.builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
+        if isinstance(self.value, str):
+            self.builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
+
+        else:
+            value = self.value.eval()
+            print(value)
+            self.builder.store(value, variables[self.id])
+
+
+
 
 class ASSIGN():
     def __init__(self, builder, module, id, value):
@@ -141,7 +183,6 @@ class ASSIGN():
         self.value = value
 
     def eval(self):
-        print("ASS",type(self.value))
 
         if isinstance(self.value, str):
 
@@ -158,6 +199,7 @@ class ASSIGN():
             i = self.builder.alloca(ir.IntType(32), name=self.id)
             variables[self.id] = i
             value = self.value.eval()
+            print(value)
             self.builder.store(value, i)
 
 
@@ -170,9 +212,7 @@ class Write():
         self.idfstr = idfstr
 
     def eval(self):
-        print(self.value)
         value = self.value.eval()
-        print(value)
 
         # Объявление списка аргументов
         voidptr_ty = ir.IntType(8).as_pointer()
@@ -180,7 +220,6 @@ class Write():
         c_fmt = ir.Constant(ir.ArrayType(ir.IntType(8), len(fmt)),
                             bytearray(fmt.encode("utf8")))
         namefstr = f"fstr{self.idfstr}"
-        print(namefstr)
         global_fmt = ir.GlobalVariable(self.module, c_fmt.type, name=namefstr)
         global_fmt.linkage = 'internal'
         global_fmt.global_constant = True
