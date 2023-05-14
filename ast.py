@@ -113,10 +113,6 @@ class WhileStatement:
 
         self.builder.position_at_start(w_after_block)
 
-
-
-
-
 class IfStatement:
     def __init__(self, builder, module, condition, if_body, else_body=None):
         self.builder = builder
@@ -173,8 +169,6 @@ class PereASSIGN():
             self.builder.store(value, variables[self.id])
 
 
-
-
 class ASSIGN():
     def __init__(self, builder, module, id, value):
         self.builder = builder
@@ -201,6 +195,23 @@ class ASSIGN():
             value = self.value.eval()
             print(value)
             self.builder.store(value, i)
+
+
+class FuncStatement():
+    def __init__(self, builder, module, name):
+        self.builder = builder
+        self.module = module
+        self.name = name
+        # self.body = body
+
+    def eval(self):
+        func_type = ir.FunctionType(ir.VoidType(), [])
+        func = ir.Function(self.module, func_type, name=self.name)
+
+        # Генерируем тело функции
+        block = func.append_basic_block(name="entry")
+        builder = ir.IRBuilder(block)
+        builder.ret_void()
 
 
 class Write():

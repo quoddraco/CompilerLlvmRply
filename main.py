@@ -10,11 +10,9 @@ text_input = """
 
 begin
 int e = 6;
-while(e < 1000){
-  e = e + 2 ;
-  write(e);  
-};
-
+write(e);
+func rip;
+func sperm;
 end                                                                           
                              
 """

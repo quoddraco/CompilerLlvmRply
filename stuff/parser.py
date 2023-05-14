@@ -2,7 +2,7 @@ from rply import ParserGenerator
 
 import ast
 from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, \
-    IfStatement, PereASSIGN, WhileStatement
+    IfStatement, PereASSIGN, WhileStatement, FuncStatement
 
 
 class Parser:
@@ -11,7 +11,7 @@ class Parser:
         self.pg = ParserGenerator(
             # Список всех токенов, принятых парсером.
             ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
-             'LogicalNegation', 'Func','String', 'While',
+             'LogicalNegation', 'Func','String', 'While', 'Comma',
              'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
              'If'],
             precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]
@@ -50,10 +50,13 @@ class Parser:
         @self.pg.production('stmt : stmt_if SemiColon')
         @self.pg.production('stmt : stmt_while SemiColon')
         @self.pg.production('stmt : stmt_pereassign SemiColon')
+        @self.pg.production('stmt : stmt_func SemiColon')
         def stmt(p):
             return p[0]
 
-
+        @self.pg.production('stmt_func : Func ID ')
+        def funcs(p):
+            return FuncStatement(self.builder, self.module, p[1].value)
         @self.pg.production('stmt_if : If LParen expression RParen LBracket stmts RBracket')
         def ifs(p):
             return IfStatement(self.builder, self.module, p[2], p[5], [])
