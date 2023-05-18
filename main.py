@@ -9,10 +9,18 @@ from codegen import CodeGen
 text_input = """
 
 begin
-int e = 6;
+int e = 8 + 8;
+
+func zalupa{
+int r = 10;
+int a = 1;
+};
+
+func penis{
+int r = 11;
+};
+
 write(e);
-func rip;
-func sperm;
 end                                                                           
                              
 """

@@ -29,6 +29,7 @@ class Parser:
 
         @self.pg.production('body : stmts')
         def block(p):
+            print("++++++++111",p)
             return p[0]
 
         @self.pg.production('stmts : stmts stmt')
@@ -54,9 +55,9 @@ class Parser:
         def stmt(p):
             return p[0]
 
-        @self.pg.production('stmt_func : Func ID ')
+        @self.pg.production('stmt_func : Func ID LBracket stmts RBracket')
         def funcs(p):
-            return FuncStatement(self.builder, self.module, p[1].value)
+            return FuncStatement(self.builder, self.module, p[1].value, p[3])
         @self.pg.production('stmt_if : If LParen expression RParen LBracket stmts RBracket')
         def ifs(p):
             return IfStatement(self.builder, self.module, p[2], p[5], [])
@@ -70,7 +71,6 @@ class Parser:
             print("++++3 ", p)
             self.idfstr +=1
             return Write(self.builder, self.module, self.printf, p[2],self.idfstr)
-
 
         @self.pg.production('stmt_assign : Int ID ASSIGN expression')
         @self.pg.production('stmt_assign : Float ID ASSIGN expression')

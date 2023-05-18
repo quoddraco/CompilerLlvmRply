@@ -6,24 +6,32 @@ define void @"main"()
 {
 entry:
   %"e" = alloca i32
-  store i32 6, i32* %"e"
-  %".3" = load i32, i32* %"e"
-  %".4" = bitcast [5 x i8]* @"fstr1" to i8*
-  %".5" = call i32 (i8*, ...) @"printf"(i8* %".4", i32 %".3")
+  %".2" = add i32 8, 8
+  store i32 %".2", i32* %"e"
+  %".4" = load i32, i32* %"e"
+  %".5" = bitcast [5 x i8]* @"fstr1" to i8*
+  %".6" = call i32 (i8*, ...) @"printf"(i8* %".5", i32 %".4")
   ret void
 }
 
 declare i32 @"printf"(i8* %".1", ...)
 
-@"fstr1" = internal constant [5 x i8] c"%i \0a\00"
-define void @"rip"()
+define void @"zalupa"()
 {
 entry:
+  %"r" = alloca i32
+  store i32 10, i32* %"r"
+  %"a" = alloca i32
+  store i32 1, i32* %"a"
   ret void
 }
 
-define void @"sperm"()
+define void @"penis"()
 {
 entry:
+  %"r" = alloca i32
+  store i32 11, i32* %"r"
   ret void
 }
+
+@"fstr1" = internal constant [5 x i8] c"%i \0a\00"

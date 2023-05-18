@@ -20,10 +20,12 @@ class Id():
         self.builder = builder
         self.module = module
 
-    def eval(self):
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
         if self.id not in variables:
             raise NameError(f"Variable '{self.id}' is not defined")
-        r = self.builder.load(variables[self.id])
+        r = builder.load(variables[self.id])
         return r
 
 
@@ -36,52 +38,70 @@ class BinaryOp():
 
 
 class Sum(BinaryOp):
-    def eval(self):
-        i = self.builder.add(self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.add(self.left.eval(), self.right.eval())
         return i
 
 
 class Sub(BinaryOp):
-    def eval(self):
-        i = self.builder.sub(self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.sub(self.left.eval(), self.right.eval())
         return i
 
 
 class Mult(BinaryOp):
-    def eval(self):
-        i = self.builder.mul(self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.mul(self.left.eval(), self.right.eval())
         return i
 
 
 class Div(BinaryOp):
-    def eval(self):
-        i = self.builder.sdiv(self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.sdiv(self.left.eval(), self.right.eval())
         return i
 
 
 class Mod(BinaryOp):
-    def eval(self):
-        i = self.builder.srem(self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.srem(self.left.eval(), self.right.eval())
         return i
 
 class Equality(BinaryOp):
-    def eval(self):
-        i = self.builder.icmp_signed('==', self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.icmp_signed('==', self.left.eval(), self.right.eval())
         return i
 
 class LessThan(BinaryOp):
-    def eval(self):
-        i = self.builder.icmp_signed('<', self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.icmp_signed('<', self.left.eval(), self.right.eval())
         return i
 
 class GreaterThan(BinaryOp):
-    def eval(self):
-        i = self.builder.icmp_signed('>', self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.icmp_signed('>', self.left.eval(), self.right.eval())
         return i
 
 class LogicalNegation(BinaryOp):
-    def eval(self):
-        i = self.builder.icmp_signed('!=', self.left.eval(), self.right.eval())
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+        i = builder.icmp_signed('!=', self.left.eval(), self.right.eval())
         return i
 
 class WhileStatement:
@@ -91,27 +111,29 @@ class WhileStatement:
         self.condition = condition
         self.body = body
 
-    def eval(self):
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
 
-        w_cond_head = self.builder.append_basic_block("w_cond_head")
-        w_body_block = self.builder.append_basic_block("w_body")
-        w_after_block = self.builder.append_basic_block("w_after")
+        w_cond_head = builder.append_basic_block("w_cond_head")
+        w_body_block = builder.append_basic_block("w_body")
+        w_after_block = builder.append_basic_block("w_after")
 
-        self.builder.branch(w_cond_head)
-        self.builder.position_at_start(w_cond_head)
+        builder.branch(w_cond_head)
+        builder.position_at_start(w_cond_head)
 
-        condition_val = self.condition.eval()
-        self.builder.cbranch(condition_val, w_body_block, w_after_block)
+        condition_val = self.condition.eval(builder)
+        builder.cbranch(condition_val, w_body_block, w_after_block)
 
-        self.builder.position_at_start(w_body_block)
+        builder.position_at_start(w_body_block)
 
         for statement in self.body:
-            statement.eval()
-        condition_val = self.condition.eval()
-        self.builder.cbranch(condition_val, w_body_block, w_after_block)
+            statement.eval(builder)
+        condition_val = self.condition.eval(builder)
+        builder.cbranch(condition_val, w_body_block, w_after_block)
         # self.builder.branch(w_after_block)
 
-        self.builder.position_at_start(w_after_block)
+        builder.position_at_start(w_after_block)
 
 class IfStatement:
     def __init__(self, builder, module, condition, if_body, else_body=None):
@@ -121,34 +143,36 @@ class IfStatement:
         self.if_body = if_body
         self.else_body = else_body
 
-    def eval(self):
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
         # вычисляем значение условного выражения
-        condition_val = self.condition.eval()
+        condition_val = self.condition.eval(builder)
 
         # создаем блоки базовых блоков для тела if и else
-        if_bb = self.builder.append_basic_block("if")
-        else_bb = self.builder.append_basic_block("else")
-        merge_bb = self.builder.append_basic_block("merge")
+        if_bb = builder.append_basic_block("if")
+        else_bb = builder.append_basic_block("else")
+        merge_bb = builder.append_basic_block("merge")
 
         # создаем инструкцию условного перехода в блок if, если значение условия истинно,
         # и в блок else в противном случае
-        self.builder.cbranch(condition_val, if_bb, else_bb)
+        builder.cbranch(condition_val, if_bb, else_bb)
 
         # выполняем тело if
-        self.builder.position_at_start(if_bb)
+        builder.position_at_start(if_bb)
         for statement in self.if_body:
-            statement.eval()
-        self.builder.branch(merge_bb)
+            statement.eval(builder)
+        builder.branch(merge_bb)
 
         # выполняем тело else, если оно есть
-        self.builder.position_at_start(else_bb)
+        builder.position_at_start(else_bb)
         if self.else_body is not None:
             for statement in self.else_body:
-                statement.eval()
-        self.builder.branch(merge_bb)
+                statement.eval(builder)
+        builder.branch(merge_bb)
 
         # переходим к блоку слияния
-        self.builder.position_at_start(merge_bb)
+        builder.position_at_start(merge_bb)
 
         # self.builder.position_at_start(self.module.get_function("main").entry_basic_block)
 
@@ -159,14 +183,16 @@ class PereASSIGN():
         self.id = id
         self.value = value
 
-    def eval(self):
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
         if isinstance(self.value, str):
-            self.builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
+            builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
 
         else:
-            value = self.value.eval()
+            value = self.value.eval(builder)
             print(value)
-            self.builder.store(value, variables[self.id])
+            builder.store(value, variables[self.id])
 
 
 class ASSIGN():
@@ -176,33 +202,35 @@ class ASSIGN():
         self.id = id
         self.value = value
 
-    def eval(self):
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
 
         if isinstance(self.value, str):
 
            if "." not in self.value:
-              i = self.builder.alloca(ir.IntType(32), name=self.id)
+              i = builder.alloca(ir.IntType(32), name=self.id)
               variables[self.id] = i
-              self.builder.store(ir.Constant(ir.IntType(32), self.value), i)
+              builder.store(ir.Constant(ir.IntType(32), self.value), i)
 
            elif "." in self.value:
-               i = self.builder.alloca(ir.DoubleType(), name=self.id)
+               i = builder.alloca(ir.DoubleType(), name=self.id)
                variables[self.id] = i
-               self.builder.store(ir.Constant(ir.DoubleType(), self.value), i)
+               builder.store(ir.Constant(ir.DoubleType(), self.value), i)
         else:
-            i = self.builder.alloca(ir.IntType(32), name=self.id)
+            i = builder.alloca(ir.IntType(32), name=self.id)
             variables[self.id] = i
-            value = self.value.eval()
+            value = self.value.eval(builder)
             print(value)
-            self.builder.store(value, i)
+            builder.store(value, i)
 
 
 class FuncStatement():
-    def __init__(self, builder, module, name):
+    def __init__(self, builder, module, name, body):
         self.builder = builder
         self.module = module
         self.name = name
-        # self.body = body
+        self.body = body
 
     def eval(self):
         func_type = ir.FunctionType(ir.VoidType(), [])
@@ -210,8 +238,12 @@ class FuncStatement():
 
         # Генерируем тело функции
         block = func.append_basic_block(name="entry")
-        builder = ir.IRBuilder(block)
-        builder.ret_void()
+        self.builder = ir.IRBuilder(block)
+
+        for statement in self.body:
+            statement.eval(self.builder)
+
+        self.builder.ret_void()
 
 
 class Write():
