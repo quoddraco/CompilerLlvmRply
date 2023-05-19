@@ -2,7 +2,7 @@ from rply import ParserGenerator
 
 import ast
 from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, \
-    IfStatement, PereASSIGN, WhileStatement, FuncStatement
+    IfStatement, PereASSIGN, WhileStatement, FuncStatement, ReturnStatement
 
 
 class Parser:
@@ -11,7 +11,7 @@ class Parser:
         self.pg = ParserGenerator(
             # Список всех токенов, принятых парсером.
             ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
-             'LogicalNegation', 'Func','String', 'While', 'Comma',
+             'LogicalNegation', 'Func','String', 'While', 'Comma', 'Return',
              'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
              'If'],
             precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]
@@ -52,6 +52,7 @@ class Parser:
         @self.pg.production('stmt : stmt_while SemiColon')
         @self.pg.production('stmt : stmt_pereassign SemiColon')
         @self.pg.production('stmt : stmt_func SemiColon')
+        @self.pg.production('stmt : stmt_return SemiColon')
         def stmt(p):
             return p[0]
 
@@ -91,6 +92,11 @@ class Parser:
                return PereASSIGN(self.builder, self.module, p[0].value, p[2].value)
            else:
                return PereASSIGN(self.builder, self.module, p[0].value, p[2])
+
+        @self.pg.production('stmt_return : Return expression')
+        def ruturn_func(p):
+            print("++++8 ", p)
+            return ReturnStatement(self.builder, p[1])
 
 
 
@@ -136,12 +142,14 @@ class Parser:
         @self.pg.production('expression : NumbFlo')
         def number(p):
             print("++++5 ", p)
-            return Numb(self.builder, self.module,p[0].value)
+            return Numb(self.builder,p[0].value)
 
         @self.pg.production('expression : ID')
         def id(p):
             print("++++7 ", p)
             return Id(self.builder, self.module,p[0].value)
+
+
 
         @self.pg.error
         def error_handle(token):

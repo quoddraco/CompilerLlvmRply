@@ -1,11 +1,11 @@
 from llvmlite import ir
 
+variables_return_func = {}
 variables = {}
 class Numb():
-    def __init__(self, builder, module, value):
+    def __init__(self, builder, value):
         self.value = value
         self.builder = builder
-        self.module = module
 
     def eval(self,builder):
         if '.' not in self.value:
@@ -26,10 +26,11 @@ class Id():
         if self.id not in variables:
             raise NameError(f"Variable '{self.id}' is not defined")
         r = builder.load(variables[self.id])
+        print(r)
         return r
 
 class Sum():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
@@ -41,7 +42,7 @@ class Sum():
 
 
 class Sub():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
@@ -53,7 +54,7 @@ class Sub():
 
 
 class Mult():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
@@ -269,6 +270,23 @@ class FuncStatement():
             statement.eval(self.builder)
 
         self.builder.ret_void()
+
+class ReturnStatement():
+    def __init__(self, builder,id):
+        self.builder = builder
+        self.id = id
+
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
+
+        id_value = self.id.eval(builder)
+        print(id_value)
+        variables_return_func[builder] = id_value
+        print(variables_return_func)
+
+
+
 
 
 class Write():

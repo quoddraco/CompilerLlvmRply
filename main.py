@@ -10,17 +10,12 @@ text_input = """
 
 begin
 int t = 10;
-t = t + 1;
-while (t < 10){
-t = t + 1;
-};
+int e = 12;
+e = t;
 
 func zalupa{
 int q = 10;
-while (q < 20){
-q = 1 + q;
-};
-int e = 10;
+return q;
 
 
 };

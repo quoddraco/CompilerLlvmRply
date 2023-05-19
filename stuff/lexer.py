@@ -40,7 +40,7 @@ class Lexer():
 
         self.lexer.add('While', r'while')
         self.lexer.add('Break', r'break')
-        self.lexer.add('Continue', r'continue')
+        self.lexer.add('Return', r'return')
         self.lexer.add('If', r'if')
         self.lexer.add('Func', r'func')
 
