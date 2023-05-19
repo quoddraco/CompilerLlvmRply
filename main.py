@@ -9,18 +9,21 @@ from codegen import CodeGen
 text_input = """
 
 begin
-int e = 8 + 8;
+int t = 10;
+t = t + 1;
+while (t < 10){
+t = t + 1;
+};
 
 func zalupa{
-int r = 10;
-int a = 1;
+int q = 10;
+while (q < 20){
+q = 1 + q;
 };
+int e = 10;
 
-func penis{
-int r = 11;
+
 };
-
-write(e);
 end                                                                           
                              
 """

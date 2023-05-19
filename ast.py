@@ -7,7 +7,7 @@ class Numb():
         self.builder = builder
         self.module = module
 
-    def eval(self):
+    def eval(self,builder):
         if '.' not in self.value:
           i = ir.Constant(ir.IntType(32), int(self.value))
         else:
@@ -28,80 +28,107 @@ class Id():
         r = builder.load(variables[self.id])
         return r
 
-
-class BinaryOp():
-    def __init__(self, builder, module, left, right):
+class Sum():
+    def __init__(self, builder,left, right):
         self.builder = builder
-        self.module = module
         self.left = left
         self.right = right
-
-
-class Sum(BinaryOp):
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.add(self.left.eval(), self.right.eval())
+        i = builder.add(self.left.eval(builder), self.right.eval(builder))
         return i
 
 
-class Sub(BinaryOp):
+class Sub():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.sub(self.left.eval(), self.right.eval())
+        i = builder.sub(self.left.eval(builder), self.right.eval(builder))
         return i
 
 
-class Mult(BinaryOp):
+class Mult():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.mul(self.left.eval(), self.right.eval())
+        i = builder.mul(self.left.eval(builder), self.right.eval(builder))
         return i
 
 
-class Div(BinaryOp):
+class Div():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.sdiv(self.left.eval(), self.right.eval())
+        i = builder.sdiv(self.left.eval(builder), self.right.eval(builder))
         return i
 
 
-class Mod(BinaryOp):
+class Mod():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.srem(self.left.eval(), self.right.eval())
+        i = builder.srem(self.left.eval(builder), self.right.eval(builder))
         return i
 
-class Equality(BinaryOp):
+class Equality():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.icmp_signed('==', self.left.eval(), self.right.eval())
+        i = builder.icmp_signed('==', self.left.eval(builder), self.right.eval(builder))
         return i
 
-class LessThan(BinaryOp):
+class LessThan():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.icmp_signed('<', self.left.eval(), self.right.eval())
+        i = builder.icmp_signed('<', self.left.eval(builder), self.right.eval(builder))
         return i
 
-class GreaterThan(BinaryOp):
+class GreaterThan():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.icmp_signed('>', self.left.eval(), self.right.eval())
+        i = builder.icmp_signed('>', self.left.eval(builder), self.right.eval(builder))
         return i
 
-class LogicalNegation(BinaryOp):
+class LogicalNegation():
+    def __init__(self, builder,left, right):
+        self.builder = builder
+        self.left = left
+        self.right = right
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
-        i = builder.icmp_signed('!=', self.left.eval(), self.right.eval())
+        i = builder.icmp_signed('!=', self.left.eval(builder), self.right.eval(builder))
         return i
 
 class WhileStatement:
@@ -191,7 +218,6 @@ class PereASSIGN():
 
         else:
             value = self.value.eval(builder)
-            print(value)
             builder.store(value, variables[self.id])
 
 
@@ -221,7 +247,6 @@ class ASSIGN():
             i = builder.alloca(ir.IntType(32), name=self.id)
             variables[self.id] = i
             value = self.value.eval(builder)
-            print(value)
             builder.store(value, i)
 
 
@@ -271,37 +296,5 @@ class Write():
 
         # Вызов ф-ии Print
         self.builder.call(self.printf, [fmt_arg, value])
-        # if "i32" in str(value):
-        #
-        # # Объявление списка аргументов
-        #    voidptr_ty = ir.IntType(8).as_pointer()
-        #    fmt = "%i \n\0"
-        #    c_fmt = ir.Constant(ir.ArrayType(ir.IntType(8), len(fmt)),
-        #                     bytearray(fmt.encode("utf8")))
-        #    global_fmt = ir.GlobalVariable(self.module, c_fmt.type, name="fstr")
-        #    global_fmt.linkage = 'internal'
-        #    global_fmt.global_constant = True
-        #    global_fmt.initializer = c_fmt
-        #    fmt_arg = self.builder.bitcast(global_fmt, voidptr_ty)
-        #
-        # # Вызов ф-ии Print
-        #    self.builder.call(self.printf, [fmt_arg, value])
-        #
-        # elif "double" in str(value):
-        #     print("ddddddddddddd", value)
-        #
-        #     # Объявление списка аргументов
-        #     voidptr_ty = ir.DoubleType().as_pointer()
-        #     fmt = "%double \n\0"
-        #     c_fmt = ir.Constant(ir.ArrayType(ir.DoubleType(), len(fmt)),
-        #                         bytearray(fmt.encode("utf8")))
-        #     global_fmt = ir.GlobalVariable(self.module, c_fmt.type, name="fstr")
-        #     global_fmt.linkage = 'internal'
-        #     global_fmt.global_constant = True
-        #     global_fmt.initializer = c_fmt
-        #     fmt_arg = self.builder.bitcast(global_fmt, voidptr_ty)
-        #
-        #     # Вызов ф-ии Print
-        #     self.builder.call(self.printf, [fmt_arg, value])
 
 

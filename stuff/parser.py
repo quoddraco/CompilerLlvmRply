@@ -109,23 +109,23 @@ class Parser:
             right = p[2]
             operator = p[1]
             if operator.gettokentype() == 'Sum':
-                return Sum(self.builder, self.module,left, right)
+                return Sum(self.builder, left, right)
             elif operator.gettokentype() == 'Sub':
-                return Sub(self.builder, self.module,left, right)
+                return Sub(self.builder, left, right)
             elif operator.gettokentype() == 'Multi':
-                return Mult(self.builder, self.module,left, right)
+                return Mult(self.builder, left, right)
             elif operator.gettokentype() == 'Div':
-                return Div(self.builder, self.module,left, right)
+                return Div(self.builder, left, right)
             elif operator.gettokentype() == 'Mod':
-                return Mod(self.builder, self.module,left, right)
+                return Mod(self.builder, left, right)
             elif operator.gettokentype() == 'LogicEquality':
-                return Equality(self.builder, self.module, left, right)
+                return Equality(self.builder, left, right)
             elif operator.gettokentype() == 'LessThan':
-                return LessThan(self.builder, self.module, left, right)
+                return LessThan(self.builder, left, right)
             elif operator.gettokentype() == 'GreaterThan':
-                return GreaterThan(self.builder, self.module, left, right)
+                return GreaterThan(self.builder, left, right)
             elif operator.gettokentype() == 'LogicalNegation':
-                return LogicalNegation(self.builder, self.module, left, right)
+                return LogicalNegation(self.builder, left, right)
 
         @self.pg.production('expression : LParen expression RParen')
         def paren_exp(p):
