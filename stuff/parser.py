@@ -2,7 +2,7 @@ from rply import ParserGenerator
 
 import ast
 from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, \
-    IfStatement, PereASSIGN, WhileStatement, FuncStatement, ReturnStatement
+    IfStatement, PereASSIGN, WhileStatement, FuncStatement, ReturnStatement, CallFunc
 
 
 class Parser:
@@ -98,8 +98,6 @@ class Parser:
             print("++++8 ", p)
             return ReturnStatement(self.builder, p[1])
 
-
-
         @self.pg.production('expression : expression Sum expression')
         @self.pg.production('expression : expression Sub expression')
         @self.pg.production('expression : expression Multi expression')
@@ -148,6 +146,13 @@ class Parser:
         def id(p):
             print("++++7 ", p)
             return Id(self.builder, self.module,p[0].value)
+
+        @self.pg.production('expression : ID LParen RParen')
+        def id(p):
+            print("++++8 ", p)
+            return CallFunc(self.builder, p[0].value)
+
+
 
 
 

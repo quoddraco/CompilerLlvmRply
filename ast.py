@@ -1,6 +1,5 @@
 from llvmlite import ir
 
-variables_return_func = {}
 variables = {}
 class Numb():
     def __init__(self, builder, value):
@@ -26,7 +25,6 @@ class Id():
         if self.id not in variables:
             raise NameError(f"Variable '{self.id}' is not defined")
         r = builder.load(variables[self.id])
-        print(r)
         return r
 
 class Sum():
@@ -202,8 +200,6 @@ class IfStatement:
         # переходим к блоку слияния
         builder.position_at_start(merge_bb)
 
-        # self.builder.position_at_start(self.module.get_function("main").entry_basic_block)
-
 class PereASSIGN():
     def __init__(self, builder, module, id, value):
         self.builder = builder
@@ -259,8 +255,10 @@ class FuncStatement():
         self.body = body
 
     def eval(self):
-        func_type = ir.FunctionType(ir.VoidType(), [])
+        func_type = ir.FunctionType(ir.IntType(32), [])
         func = ir.Function(self.module, func_type, name=self.name)
+        variables[self.name] = func
+
 
         # Генерируем тело функции
         block = func.append_basic_block(name="entry")
@@ -269,7 +267,6 @@ class FuncStatement():
         for statement in self.body:
             statement.eval(self.builder)
 
-        self.builder.ret_void()
 
 class ReturnStatement():
     def __init__(self, builder,id):
@@ -280,13 +277,21 @@ class ReturnStatement():
         if builder == None:
             builder = self.builder
 
-        id_value = self.id.eval(builder)
-        print(id_value)
-        variables_return_func[builder] = id_value
-        print(variables_return_func)
+        if self.id is not None:
+            return_value = self.id.eval(builder)
+            builder.ret(return_value)
 
+class CallFunc():
+    def __init__(self, builder,id):
+        self.builder = builder
+        self.id = id
 
+    def eval(self,builder = None):
+        if builder == None:
+            builder = self.builder
 
+        call = builder.call(variables[self.id], [])
+        return call
 
 
 class Write():

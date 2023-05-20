@@ -9,16 +9,18 @@ from codegen import CodeGen
 text_input = """
 
 begin
-int t = 10;
-int e = 12;
-e = t;
 
 func zalupa{
-int q = 10;
+int q = 0;
+q = 2 + 2;
 return q;
-
-
 };
+
+int t = 0;
+t = zalupa();
+write(t);
+
+
 end                                                                           
                              
 """
