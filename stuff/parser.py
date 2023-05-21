@@ -29,7 +29,6 @@ class Parser:
 
         @self.pg.production('body : stmts')
         def block(p):
-            print("++++++++111",p)
             return p[0]
 
         @self.pg.production('stmts : stmts stmt')
@@ -56,9 +55,27 @@ class Parser:
         def stmt(p):
             return p[0]
 
-        @self.pg.production('stmt_func : Func ID LBracket stmts RBracket')
+        @self.pg.production('stmt_func : Func ID LParen ID RParen LBracket stmts RBracket')
         def funcs(p):
-            return FuncStatement(self.builder, self.module, p[1].value, p[3])
+            return FuncStatement(self.builder, self.module, p[1].value, p[3] , p[6])
+
+        @self.pg.production('argument_list : argument')
+        def argument_list_single(p):
+            argument = p[0]
+            print("11111, ", argument)
+        @self.pg.production('argument_list : argument Comma argument_list')
+        def argument_list_multiple(p):
+            argument = p[0]
+            rest_arguments = p[2]
+            print("22222, ", argument)
+            print("33333, ", rest_arguments)
+
+        @self.pg.production('argument : ID')
+        def argument(p):
+            argument_name = p[0]
+            print("444444, ", argument_name)
+
+
         @self.pg.production('stmt_if : If LParen expression RParen LBracket stmts RBracket')
         def ifs(p):
             return IfStatement(self.builder, self.module, p[2], p[5], [])
@@ -69,15 +86,12 @@ class Parser:
 
         @self.pg.production('stmt_write : Write LParen expression RParen')
         def prints(p):
-            print("++++3 ", p)
             self.idfstr +=1
             return Write(self.builder, self.module, self.printf, p[2],self.idfstr)
 
         @self.pg.production('stmt_assign : Int ID ASSIGN expression')
         @self.pg.production('stmt_assign : Float ID ASSIGN expression')
         def assign(p):
-            print("++++6 ", p)
-            print("++++6.1",type(p[3]))
 
             if isinstance(p[3], ast.Numb):
                 return ASSIGN(self.builder, self.module, p[1].value, p[3].value)
@@ -86,7 +100,6 @@ class Parser:
 
         @self.pg.production('stmt_pereassign : ID ASSIGN expression')
         def pereassign(p):
-           print("++++6.2 ", p)
 
            if isinstance(p[2], ast.Numb):
                return PereASSIGN(self.builder, self.module, p[0].value, p[2].value)
@@ -95,7 +108,6 @@ class Parser:
 
         @self.pg.production('stmt_return : Return expression')
         def ruturn_func(p):
-            print("++++8 ", p)
             return ReturnStatement(self.builder, p[1])
 
         @self.pg.production('expression : expression Sum expression')
@@ -108,7 +120,6 @@ class Parser:
         @self.pg.production('expression : expression GreaterThan expression')
         @self.pg.production('expression : expression LogicalNegation expression')
         def expression(p):
-            print("++++4 ", p)
             left = p[0]
             right = p[2]
             operator = p[1]
@@ -133,28 +144,20 @@ class Parser:
 
         @self.pg.production('expression : LParen expression RParen')
         def paren_exp(p):
-            print("++++++++8",p)
             return p[1]
 
         @self.pg.production('expression : Numb')
         @self.pg.production('expression : NumbFlo')
         def number(p):
-            print("++++5 ", p)
             return Numb(self.builder,p[0].value)
 
         @self.pg.production('expression : ID')
         def id(p):
-            print("++++7 ", p)
             return Id(self.builder, self.module,p[0].value)
 
-        @self.pg.production('expression : ID LParen RParen')
-        def id(p):
-            print("++++8 ", p)
-            return CallFunc(self.builder, p[0].value)
-
-
-
-
+        @self.pg.production('expression : ID LParen expression RParen')
+        def idfunc(p):
+            return CallFunc(self.builder, p[0].value, p[2])
 
         @self.pg.error
         def error_handle(token):

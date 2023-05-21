@@ -10,14 +10,16 @@ text_input = """
 
 begin
 
-func zalupa{
-int q = 0;
-q = 2 + 2;
-return q;
+func rip (t) {
+t = t + 1;
+return t;
 };
 
-int t = 0;
-t = zalupa();
+int t = 10;
+while(t < 1000){
+t = rip(t);
+};
+
 write(t);
 
 

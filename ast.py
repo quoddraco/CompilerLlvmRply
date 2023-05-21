@@ -11,6 +11,7 @@ class Numb():
           i = ir.Constant(ir.IntType(32), int(self.value))
         else:
           i = ir.Constant(ir.DoubleType(), float(self.value))
+        print("NUMB ",i)
         return i
 
 class Id():
@@ -248,24 +249,33 @@ class ASSIGN():
 
 
 class FuncStatement():
-    def __init__(self, builder, module, name, body):
+    def __init__(self, builder, module, name, args, body):
         self.builder = builder
         self.module = module
         self.name = name
         self.body = body
+        self.args = args  # Аргументы функции
+
 
     def eval(self):
-        func_type = ir.FunctionType(ir.IntType(32), [])
+        print("ARG", self.args.value)
+
+        func_type = ir.FunctionType(ir.IntType(32),  [ir.IntType(32)], )
         func = ir.Function(self.module, func_type, name=self.name)
         variables[self.name] = func
-
 
         # Генерируем тело функции
         block = func.append_basic_block(name="entry")
         self.builder = ir.IRBuilder(block)
 
+        arg = self.builder.alloca(ir.IntType(32), name=str(self.args.value))
+        variables[str(self.args.value)] = arg
+        self.builder.store(func.args[0], arg)
+
         for statement in self.body:
             statement.eval(self.builder)
+
+
 
 
 class ReturnStatement():
@@ -282,15 +292,19 @@ class ReturnStatement():
             builder.ret(return_value)
 
 class CallFunc():
-    def __init__(self, builder,id):
+    def __init__(self, builder,id, value):
         self.builder = builder
         self.id = id
+        self.value = value
 
     def eval(self,builder = None):
         if builder == None:
             builder = self.builder
 
-        call = builder.call(variables[self.id], [])
+        r = self.value.eval(builder)
+        print(r)
+
+        call = builder.call(variables[self.id], [r])
         return call
 
 
