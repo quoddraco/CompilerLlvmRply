@@ -1,10 +1,10 @@
 import os
-
 from llvmlite import ir, binding
 
 
 class CodeGen():
     def __init__(self):
+        self.mod = None
         self.binding = binding
         self.binding.initialize()
         self.binding.initialize_native_target()
@@ -34,6 +34,33 @@ class CodeGen():
         backing_mod = binding.parse_assembly("")
         engine = binding.create_mcjit_compiler(backing_mod, target_machine)
         self.engine = engine
+        
+    def optimization(self,module_ref):
+        pass_manager_builder = binding.create_pass_manager_builder()
+
+        module_pass_manager = binding.create_module_pass_manager()
+
+        module_pass_manager.add_constant_merge_pass()
+        module_pass_manager.add_dead_arg_elimination_pass()
+        module_pass_manager.add_function_attrs_pass()
+        module_pass_manager.add_function_inlining_pass(5)
+        module_pass_manager.add_global_dce_pass()
+        module_pass_manager.add_global_optimizer_pass()
+        module_pass_manager.add_ipsccp_pass()
+        module_pass_manager.add_dead_code_elimination_pass()
+        module_pass_manager.add_cfg_simplification_pass()
+        module_pass_manager.add_gvn_pass()
+        module_pass_manager.add_instruction_combining_pass()
+        module_pass_manager.add_licm_pass()
+        module_pass_manager.add_sccp_pass()
+        module_pass_manager.add_sroa_pass()
+        module_pass_manager.add_type_based_alias_analysis_pass()
+        module_pass_manager.add_basic_alias_analysis_pass()
+
+        pass_manager_builder.populate(module_pass_manager)
+
+        module_pass_manager.run(module_ref)
+        
 
     def _declare_print_function(self):
         # Функция Printf
@@ -52,14 +79,24 @@ class CodeGen():
         llvm_ir = str(self.module)
         self.mod = self.binding.parse_assembly(llvm_ir)
         self.mod.verify()
-        # Теперь добавляем модуль и убеждаемся, что он готов к выполнению
-        # self.engine.add_module(self.mod)
-        # self.engine.finalize_object()
-        # self.engine.run_static_constructors()
+
         return self.mod
+
+    def _apply_optimizations(self):
+        # Создание пасс-менеджера для оптимизаций
+        pm = self.binding.ModulePassManager()
+
+        # Добавление оптимизаций в пасс-менеджер
+        pm_builder = self.binding.PassManagerBuilder()
+        pm_builder.opt_level = 3
+        pm_builder.populate(pm)
+
+        # Применение пасс-менеджера к модулю
+        pm.run(self.mod)
 
     def create_ir(self):
         self._compile_ir()
+        self._apply_optimizations()
 
     def save_ir(self, filename):
         with open(filename, 'w') as output_file:
@@ -68,6 +105,9 @@ class CodeGen():
 
     def try_ir(self):
         self.mod = self.binding.parse_assembly(str(self.module))
+        self.optimization(self.mod) \
+            if input("Нужна оптимизация:(y/n)").lower() == "y"\
+            else print(" Код без оптимизации")
         self.mod.verify()
 
         binding.initialize()
@@ -81,6 +121,11 @@ class CodeGen():
         self.module.data_layout = target_machine.target_data
 
         print(self.mod)
+        print("Assembler:")
+        asm = target_machine.emit_assembly(self.mod)
+        print(asm)
+
+
         obj = target_machine.emit_object(self.mod)
         open("tester.o","wb").write(obj)
         os.system("gcc tester.o -no-pie -o output")

@@ -10,7 +10,7 @@ class Parser:
         self.variables = {}
         self.pg = ParserGenerator(
             ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
-             'LogicalNegation', 'Func','String', 'While', 'Return',
+             'LogicalNegation', 'Func', 'While', 'Return',
              'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
              'If'],
             precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]
@@ -23,7 +23,6 @@ class Parser:
     def parse(self):
         @self.pg.production('program : Begin body  End')
         def program_expression(p):
-            print("1====", p[1], "====")
             return p[1]
 
         @self.pg.production('body : stmts')
@@ -133,6 +132,11 @@ class Parser:
         def number(p):
             return Numb(self.builder,p[0].value)
 
+        @self.pg.production('expression : Float LParen ID RParen')
+        @self.pg.production('expression : Int LParen ID RParen')
+        def typecast(p):
+            return Typecast(self.builder, self.module, p[0].value, p[2].value)
+
         @self.pg.production('expression : ID')
         def id(p):
             return Id(self.builder, self.module,p[0].value)
@@ -144,7 +148,9 @@ class Parser:
         @self.pg.error
         def error_handle(token):
             warnings.filterwarnings("ignore", category=ParserGeneratorWarning)
-            raise ValueError("Syntax error at token {}".format(token))
+            raise ValueError("Syntax error at token {}".format(token.gettokentype()))
 
     def get_parser(self):
+        warnings.filterwarnings('ignore')
+
         return self.pg.build()

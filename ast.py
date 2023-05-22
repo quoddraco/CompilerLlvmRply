@@ -1,18 +1,20 @@
 from llvmlite import ir
 
 variables = {}
+
+
 class Numb():
     def __init__(self, builder, value):
         self.value = value
         self.builder = builder
 
-    def eval(self,builder):
+    def eval(self, builder):
         if '.' not in self.value:
-          i = ir.Constant(ir.IntType(32), int(self.value))
+            i = ir.Constant(ir.IntType(32), int(self.value))
         else:
-          i = ir.Constant(ir.DoubleType(), float(self.value))
-        print("NUMB ",i)
+            i = ir.Constant(ir.DoubleType(), float(self.value))
         return i
+
 
 class Id():
     def __init__(self, builder, module, id):
@@ -20,7 +22,7 @@ class Id():
         self.builder = builder
         self.module = module
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         if self.id not in variables:
@@ -28,12 +30,14 @@ class Id():
         r = builder.load(variables[self.id])
         return r
 
+
 class Sum():
     def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.add(self.left.eval(builder), self.right.eval(builder))
@@ -45,7 +49,8 @@ class Sub():
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.sub(self.left.eval(builder), self.right.eval(builder))
@@ -57,7 +62,8 @@ class Mult():
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.mul(self.left.eval(builder), self.right.eval(builder))
@@ -65,11 +71,12 @@ class Mult():
 
 
 class Div():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.sdiv(self.left.eval(builder), self.right.eval(builder))
@@ -77,59 +84,69 @@ class Div():
 
 
 class Mod():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.srem(self.left.eval(builder), self.right.eval(builder))
         return i
 
+
 class Equality():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.icmp_signed('==', self.left.eval(builder), self.right.eval(builder))
         return i
 
+
 class LessThan():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.icmp_signed('<', self.left.eval(builder), self.right.eval(builder))
         return i
 
+
 class GreaterThan():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.icmp_signed('>', self.left.eval(builder), self.right.eval(builder))
         return i
 
+
 class LogicalNegation():
-    def __init__(self, builder,left, right):
+    def __init__(self, builder, left, right):
         self.builder = builder
         self.left = left
         self.right = right
-    def eval(self,builder = None):
+
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         i = builder.icmp_signed('!=', self.left.eval(builder), self.right.eval(builder))
         return i
+
 
 class WhileStatement:
     def __init__(self, builder, module, condition, body):
@@ -138,7 +155,7 @@ class WhileStatement:
         self.condition = condition
         self.body = body
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
 
@@ -162,6 +179,7 @@ class WhileStatement:
 
         builder.position_at_start(w_after_block)
 
+
 class IfStatement:
     def __init__(self, builder, module, condition, if_body, else_body=None):
         self.builder = builder
@@ -170,7 +188,7 @@ class IfStatement:
         self.if_body = if_body
         self.else_body = else_body
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
         # вычисляем значение условного выражения
@@ -201,6 +219,7 @@ class IfStatement:
         # переходим к блоку слияния
         builder.position_at_start(merge_bb)
 
+
 class PereASSIGN():
     def __init__(self, builder, module, id, value):
         self.builder = builder
@@ -208,19 +227,43 @@ class PereASSIGN():
         self.id = id
         self.value = value
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
+
+        if self.id not in variables:
+            raise NameError(f"Variable '{self.id}' is not defined")
+
         if isinstance(self.value, str):
-            if self.id not in variables:
-                raise NameError(f"Variable '{self.id}' is not defined")
             builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
 
+
         else:
-            if self.id not in variables:
-                raise NameError(f"Variable '{self.id}' is not defined")
             value = self.value.eval(builder)
             builder.store(value, variables[self.id])
+
+
+class Typecast():
+    def __init__(self, builder, module, type, value):
+        self.builder = builder
+        self.module = module
+        self.type = type
+        self.value = value
+
+    def eval(self, builder=None):
+        if builder == None:
+            builder = self.builder
+        try:
+            if self.type == "int":
+                r = builder.load(variables[self.value])
+                i = builder.fptosi(r, ir.IntType(32))
+            elif self.type == "flo":
+                r = builder.load(variables[self.value])
+                i = builder.sitofp(r, ir.DoubleType())
+
+            return i
+        except:
+            print("Error typecast")
 
 
 class ASSIGN():
@@ -230,7 +273,7 @@ class ASSIGN():
         self.id = id
         self.value = value
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
 
@@ -238,14 +281,15 @@ class ASSIGN():
             raise NameError(f"Variable '{self.id}' is already initialized")
 
         if "." not in self.value:
-              i = builder.alloca(ir.IntType(32), name=self.id)
-              variables[self.id] = i
-              builder.store(ir.Constant(ir.IntType(32), self.value), i)
+            i = builder.alloca(ir.IntType(32), name=self.id)
+            variables[self.id] = i
+            builder.store(ir.Constant(ir.IntType(32), self.value), i)
 
         elif "." in self.value:
-               i = builder.alloca(ir.DoubleType(), name=self.id)
-               variables[self.id] = i
-               builder.store(ir.Constant(ir.DoubleType(), self.value), i)
+            i = builder.alloca(ir.DoubleType(), name=self.id)
+            variables[self.id] = i
+            builder.store(ir.Constant(ir.DoubleType(), self.value), i)
+
 
 class FuncStatement():
     def __init__(self, builder, module, name, args, body):
@@ -255,12 +299,11 @@ class FuncStatement():
         self.body = body
         self.args = args
 
-
     def eval(self):
         if self.name in variables:
             raise NameError(f"A function '{self.name}' with that name already exists")
 
-        func_type = ir.FunctionType(ir.IntType(32),  [ir.IntType(32)], )
+        func_type = ir.FunctionType(ir.IntType(32), [ir.IntType(32)], )
         func = ir.Function(self.module, func_type, name=self.name)
         variables[self.name] = func
 
@@ -276,14 +319,12 @@ class FuncStatement():
             statement.eval(self.builder)
 
 
-
-
 class ReturnStatement():
-    def __init__(self, builder,id):
+    def __init__(self, builder, id):
         self.builder = builder
         self.id = id
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
 
@@ -291,18 +332,18 @@ class ReturnStatement():
             return_value = self.id.eval(builder)
             builder.ret(return_value)
 
+
 class CallFunc():
-    def __init__(self, builder,id, value):
+    def __init__(self, builder, id, value):
         self.builder = builder
         self.id = id
         self.value = value
 
-    def eval(self,builder = None):
+    def eval(self, builder=None):
         if builder == None:
             builder = self.builder
 
         r = self.value.eval(builder)
-        print(r)
         if self.id not in variables:
             raise NameError(f"Variable '{self.id}' is not defined")
 
@@ -335,5 +376,3 @@ class Write():
 
         # Вызов ф-ии Print
         self.builder.call(self.printf, [fmt_arg, value])
-
-
