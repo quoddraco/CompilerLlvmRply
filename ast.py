@@ -212,9 +212,13 @@ class PereASSIGN():
         if builder == None:
             builder = self.builder
         if isinstance(self.value, str):
+            if self.id not in variables:
+                raise NameError(f"Variable '{self.id}' is not defined")
             builder.store(ir.Constant(ir.IntType(32), self.value), variables[self.id])
 
         else:
+            if self.id not in variables:
+                raise NameError(f"Variable '{self.id}' is not defined")
             value = self.value.eval(builder)
             builder.store(value, variables[self.id])
 
@@ -230,23 +234,18 @@ class ASSIGN():
         if builder == None:
             builder = self.builder
 
-        if isinstance(self.value, str):
+        if self.id in variables:
+            raise NameError(f"Variable '{self.id}' is already initialized")
 
-           if "." not in self.value:
+        if "." not in self.value:
               i = builder.alloca(ir.IntType(32), name=self.id)
               variables[self.id] = i
               builder.store(ir.Constant(ir.IntType(32), self.value), i)
 
-           elif "." in self.value:
+        elif "." in self.value:
                i = builder.alloca(ir.DoubleType(), name=self.id)
                variables[self.id] = i
                builder.store(ir.Constant(ir.DoubleType(), self.value), i)
-        else:
-            i = builder.alloca(ir.IntType(32), name=self.id)
-            variables[self.id] = i
-            value = self.value.eval(builder)
-            builder.store(value, i)
-
 
 class FuncStatement():
     def __init__(self, builder, module, name, args, body):
@@ -254,11 +253,12 @@ class FuncStatement():
         self.module = module
         self.name = name
         self.body = body
-        self.args = args  # Аргументы функции
+        self.args = args
 
 
     def eval(self):
-        print("ARG", self.args.value)
+        if self.name in variables:
+            raise NameError(f"A function '{self.name}' with that name already exists")
 
         func_type = ir.FunctionType(ir.IntType(32),  [ir.IntType(32)], )
         func = ir.Function(self.module, func_type, name=self.name)
@@ -303,6 +303,8 @@ class CallFunc():
 
         r = self.value.eval(builder)
         print(r)
+        if self.id not in variables:
+            raise NameError(f"Variable '{self.id}' is not defined")
 
         call = builder.call(variables[self.id], [r])
         return call

@@ -7,22 +7,18 @@ from codegen import CodeGen
 #     text_input = f.read()
 
 text_input = """
-
 begin
 
-func rip (t) {
-t = t + 1;
-return t;
+func zalupa(a){
+a = a + 6;
+return a;
 };
 
-int t = 10;
-while(t < 1000){
-t = rip(t);
-};
 
+int t = 2;
+t = 4;
+t = zalupa(t);
 write(t);
-
-
 end                                                                           
                              
 """

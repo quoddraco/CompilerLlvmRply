@@ -1,17 +1,16 @@
 from rply import ParserGenerator
+from rply.errors import ParserGeneratorWarning
+import warnings
 
 import ast
-from ast import Numb, Sum, Sub, Write, Mult, Div, Mod, ASSIGN, Id, Equality, LessThan, GreaterThan, LogicalNegation, \
-    IfStatement, PereASSIGN, WhileStatement, FuncStatement, ReturnStatement, CallFunc
-
+from ast import *
 
 class Parser:
     def __init__(self, module, builder, printf):
         self.variables = {}
         self.pg = ParserGenerator(
-            # Список всех токенов, принятых парсером.
             ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
-             'LogicalNegation', 'Func','String', 'While', 'Comma', 'Return',
+             'LogicalNegation', 'Func','String', 'While', 'Return',
              'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
              'If'],
             precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]
@@ -58,23 +57,6 @@ class Parser:
         @self.pg.production('stmt_func : Func ID LParen ID RParen LBracket stmts RBracket')
         def funcs(p):
             return FuncStatement(self.builder, self.module, p[1].value, p[3] , p[6])
-
-        @self.pg.production('argument_list : argument')
-        def argument_list_single(p):
-            argument = p[0]
-            print("11111, ", argument)
-        @self.pg.production('argument_list : argument Comma argument_list')
-        def argument_list_multiple(p):
-            argument = p[0]
-            rest_arguments = p[2]
-            print("22222, ", argument)
-            print("33333, ", rest_arguments)
-
-        @self.pg.production('argument : ID')
-        def argument(p):
-            argument_name = p[0]
-            print("444444, ", argument_name)
-
 
         @self.pg.production('stmt_if : If LParen expression RParen LBracket stmts RBracket')
         def ifs(p):
@@ -161,7 +143,8 @@ class Parser:
 
         @self.pg.error
         def error_handle(token):
-            raise ValueError(token)
+            warnings.filterwarnings("ignore", category=ParserGeneratorWarning)
+            raise ValueError("Syntax error at token {}".format(token))
 
     def get_parser(self):
         return self.pg.build()
