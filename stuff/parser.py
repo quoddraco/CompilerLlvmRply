@@ -148,7 +148,7 @@ class Parser:
         @self.pg.error
         def error_handle(token):
             warnings.filterwarnings("ignore", category=ParserGeneratorWarning)
-            raise ValueError("Syntax error at token {}".format(token.gettokentype()))
+            raise ValueError("Syntax error at token {0} at line {1}".format(token.gettokentype(),token.source_pos.lineno-1))
 
     def get_parser(self):
         warnings.filterwarnings('ignore')

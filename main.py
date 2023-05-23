@@ -2,12 +2,12 @@ from stuff.lexer import Lexer
 from stuff.parser import Parser
 from codegen import CodeGen
 
-
 def get_last_element(lst):
     if isinstance(lst, list):
         return get_last_element(lst[-1])
     else:
         return lst
+
 # fname = "input.q"
 # with open(fname) as f:
 #     text_input = f.read()
@@ -58,7 +58,8 @@ except Exception as e:
         line = e.source_pos.lineno
         print("Parsing Error at line", line)
     else:
-        print("Parsing Error:", str(e))
+
+        print("Parsing Error:", e)
 
 
 
