@@ -10,7 +10,7 @@ class Parser:
         self.variables = {}
         self.pg = ParserGenerator(
             ['Numb', 'Write', 'LParen', 'RParen','LBracket','RBracket','LogicEquality','LessThan','GreaterThan',
-             'LogicalNegation', 'Func', 'While', 'Return',
+             'LogicalNegation', 'Func', 'While', 'Return','Comma',
              'SemiColon', 'Sum', 'Sub', 'Multi', 'Div', 'Mod', 'ID', 'ASSIGN', 'Int','Begin','End','Float','NumbFlo',
              'If'],
             precedence=[("left", ["Sum","Sub"]),("right", ["Multi", 'Div', 'Mod'])]

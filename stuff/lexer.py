@@ -5,7 +5,6 @@ class Lexer():
         self.lexer = LexerGenerator()
 
     def _add_tokens(self):
-        self.lexer.add('Write', r'write')
         self.lexer.add('Begin', r'begin')
         self.lexer.add('End', r'end')
 
@@ -16,8 +15,7 @@ class Lexer():
         self.lexer.add('RParen', r'\)')
         self.lexer.add('LBracket', r'\{')
         self.lexer.add('RBracket', r'\}')
-        self.lexer.add('LQuote', r'"')
-        self.lexer.add('RQuote', r'"')
+
         # Точка с запятой
         self.lexer.add('SemiColon', r'\;')
         self.lexer.add('Comma', r',')
@@ -39,7 +37,6 @@ class Lexer():
         self.lexer.add('LogicalOr ', r'\|\|')
 
         self.lexer.add('While', r'while')
-        self.lexer.add('Break', r'break')
         self.lexer.add('Return', r'return')
         self.lexer.add('If', r'if')
         self.lexer.add('Func', r'func')

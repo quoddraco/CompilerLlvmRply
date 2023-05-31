@@ -14,14 +14,19 @@ def get_last_element(lst):
 
 text_input = """
 begin
-int t = 0;
-flo a = 2.5;
-int e = 3;
-a = flo(e);
-write(t);
+
+func rip(a){
+int r = 2;
+r = r * a;
+return r;
+};
+
+int n = 4;
+n = rip(n);
+write(n);
 
 end                                                                           
-                             
+                              
 """
 
 lexer = Lexer().get_lexer()

@@ -2,6 +2,44 @@ import os
 from llvmlite import ir, binding
 
 
+class OptimizationSecondTry:
+    def __init__(self):
+        binding.initialize_all_targets()
+        binding.initialize_all_asmprinters()
+
+    def optimize_unusable_variables(self, module):
+        binding.initialize_all_targets()
+        binding.initialize_all_asmprinters()
+
+        pass_manager = binding.create_module_pass_manager()
+        pass_manager.add_dead_code_elimination_pass()
+        pass_manager.initialize()
+
+        for func in module.functions:
+            pass_manager.run(func)
+
+    def optimize_constants(self, module):
+        binding.initialize_all_targets()
+        binding.initialize_all_asmprinters()
+
+        pass_manager = binding.create_module_pass_manager()
+        pass_manager.add_constant_propagation_pass()
+        pass_manager.initialize()
+
+        for func in module.functions:
+            pass_manager.run(func)
+
+    def optimize_variable_assignments(self, module):
+        binding.initialize_all_targets()
+        binding.initialize_all_asmprinters()
+
+        pass_manager = binding.create_module_pass_manager()
+        pass_manager.add_memory_to_register_promotion_pass()
+        pass_manager.initialize()
+
+        pass_manager.run(module)
+
+
 class CodeGen():
     def __init__(self):
         self.mod = None
@@ -34,8 +72,8 @@ class CodeGen():
         backing_mod = binding.parse_assembly("")
         engine = binding.create_mcjit_compiler(backing_mod, target_machine)
         self.engine = engine
-        
-    def optimization(self,module_ref):
+
+    def optimization(self, module_ref):
         pass_manager_builder = binding.create_pass_manager_builder()
 
         module_pass_manager = binding.create_module_pass_manager()
@@ -60,7 +98,6 @@ class CodeGen():
         pass_manager_builder.populate(module_pass_manager)
 
         module_pass_manager.run(module_ref)
-        
 
     def _declare_print_function(self):
         # Функция Printf
@@ -106,7 +143,7 @@ class CodeGen():
     def try_ir(self):
         self.mod = self.binding.parse_assembly(str(self.module))
         self.optimization(self.mod) \
-            if input("Нужна оптимизация:(y/n)").lower() == "y"\
+            if input("Нужна оптимизация:(y/n)").lower() == "y" \
             else print(" Код без оптимизации")
         self.mod.verify()
 
@@ -123,10 +160,10 @@ class CodeGen():
         print(self.mod)
         print("Assembler:")
         asm = target_machine.emit_assembly(self.mod)
+        open("tester.s",'w').write(asm)
         print(asm)
 
-
         obj = target_machine.emit_object(self.mod)
-        open("tester.o","wb").write(obj)
+        open("tester.o", "wb").write(obj)
         os.system("gcc tester.o -no-pie -o output")
         os.system("./output")
