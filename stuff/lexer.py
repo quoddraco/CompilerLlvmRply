@@ -30,6 +30,7 @@ class Lexer():
         self.lexer.add('ASSIGN', r'=')
 
 
+
         self.lexer.add('LessThan', r'\<')
         self.lexer.add('GreaterThan', r'\>')
         self.lexer.add('LogicalNegation', r'\!=')
